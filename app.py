@@ -15,6 +15,54 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+MODEL_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "models")
+os.makedirs(MODEL_DIR, exist_ok=True)
+
+@st.cache_resource(show_spinner=False)
+def download_models_from_hf():
+    """Download model dari HF Hub jika belum ada di local."""
+    try:
+        from huggingface_hub import hf_hub_download
+    except ImportError:
+        st.error("❌ Package huggingface_hub tidak terinstall. Tambahkan ke requirements.txt")
+        st.stop()
+
+    token   = st.secrets.get("HF_TOKEN", None)
+    repo_id = st.secrets.get("HF_REPO", None)
+
+    if not repo_id:
+        st.error("❌ HF_REPO tidak ditemukan di Streamlit Secrets.")
+        st.stop()
+
+    files_needed = [
+        "best_s1_vgg16_glcm.keras",
+        "best_s2_resnet_glcm.keras",
+        "glcm_scaler.pkl",
+    ]
+
+    progress = st.empty()
+    for i, fname in enumerate(files_needed):
+        dest = os.path.join(MODEL_DIR, fname)
+        if os.path.exists(dest):
+            continue  # sudah ada, skip
+        progress.info(f"⏬ Mengunduh {fname} dari Hugging Face... ({i+1}/{len(files_needed)})")
+        try:
+            hf_hub_download(
+                repo_id=repo_id,
+                filename=fname,
+                local_dir=MODEL_DIR,
+                token=token,
+            )
+        except Exception as e:
+            st.error(f"❌ Gagal download {fname}: {e}")
+            st.stop()
+
+    progress.empty()
+    return True
+
+# Jalankan download saat startup
+download_models_from_hf()
+
 # ── CSS Custom ─────────────────────────────────────────────────────
 st.markdown("""
 <style>
