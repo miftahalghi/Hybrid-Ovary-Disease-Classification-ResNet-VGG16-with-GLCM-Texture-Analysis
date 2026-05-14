@@ -6,6 +6,9 @@ import os
 import hashlib
 from PIL import Image
 import io
+import warnings
+warnings.filterwarnings("ignore")
+
 
 # ── Page config ────────────────────────────────────────────────────
 st.set_page_config(
@@ -542,7 +545,7 @@ with col_up:
         img_pil   = Image.open(uploaded).convert("RGB")
         img_array = np.array(img_pil)
 
-        st.image(img_pil, caption="Citra yang diunggah", use_column_width=True)
+        st.image(img_pil, caption="Citra yang diunggah", use_container_width=True)
 
         st.markdown(f"""
         <div style="font-size:0.82rem; color:#64748b; margin-top:0.5rem;">
@@ -557,8 +560,8 @@ with col_up:
             clahe_obj = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
             clahe_prev = clahe_obj.apply(gray_prev)
             col_a, col_b = st.columns(2)
-            col_a.image(gray_prev, caption="Grayscale", use_column_width=True, clamp=True)
-            col_b.image(clahe_prev, caption="Setelah CLAHE", use_column_width=True, clamp=True)
+            col_a.image(gray_prev, caption="Grayscale", use_container_width=True, clamp=True)
+            col_b.image(clahe_prev, caption="Setelah CLAHE", use_container_width=True, clamp=True)
 
 with col_res:
     st.markdown("### 🧠 Hasil Analisis")
